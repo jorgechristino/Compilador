@@ -12,7 +12,7 @@ Comandos para a geração do compilador da linguagem e execução do programa ex
 
 ```console
 flex lexico.l
-bison -d sinatico.y
-gpp lex.yy.c sintatico.tab.c -o compiler
-compiler.exe programa
+bison -d sintatico.y
+g++ lex.yy.c sintatico.tab.c -o compiler
+.\compiler.exe programa
 ```
