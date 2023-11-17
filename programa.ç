@@ -1,0 +1,8 @@
+main 
+{ 
+   int a = 5;
+   char z = |a|;
+   (a or 0) and (not z)
+   a >= 0
+} 
+endmain

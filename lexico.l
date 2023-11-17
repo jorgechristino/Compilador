@@ -10,15 +10,15 @@ extern double variables[26];
 %option yylineno
 %option noyywrap
 
-digito	    [0-9]
-letra	    [a-zA-Z]
-separador   "|"
-underscore  "_"
-inteiro     [-+]?{digito}+ 
-real        [-+]?{digito}+"."{digito}+
-caractere   "|"[{letra}|{digito}|{" "}]"|"
+digito	        [0-9]
+letra 	        [a-zA-Z]
+separador       "|"
+underscore      "_"
+inteiro         [-+]?{digito}+ 
+real            [-+]?{digito}+"."{digito}+
+caractere       "|"[{letra}|{digito}|{" "}]"|"
 
-var         {letra}({letra}|{digito}|{underscore})*
+var             {letra}({letra}|{digito}|{underscore})*
 
 %%
 
@@ -30,6 +30,16 @@ var         {letra}({letra}|{digito}|{underscore})*
 "float"      { return FLOAT; }
 "char"       { return CHAR; }
 "print"      { return PRINT; }
+"read"       { return READ; }
+"not"        { return NOT; }
+"and"        { return AND; }
+"or"         { return OR; }
+"=="         { return EQ; }
+"!="         { return NEQ; }
+">"          { return GT; }
+"<"          { return LT; }
+">="         { return GTEQ; }
+"<="         { return LTEQ; }
 {inteiro}    { yylval.inteiro = atoi(yytext); return INTEIRO; }
 {real}       { yylval.real = atof(yytext); return REAL; }
 {caractere}  { yylval.caractere = yytext[1]; return CARACTERE; }

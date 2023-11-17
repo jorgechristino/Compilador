@@ -45,11 +45,20 @@
      FLOAT = 261,
      CHAR = 262,
      PRINT = 263,
-     INTEIRO = 264,
-     REAL = 265,
-     CARACTERE = 266,
-     VAR = 267,
-     UMINUS = 268
+     READ = 264,
+     NOT = 265,
+     AND = 266,
+     OR = 267,
+     EQ = 268,
+     NEQ = 269,
+     GT = 270,
+     LT = 271,
+     GTEQ = 272,
+     LTEQ = 273,
+     INTEIRO = 274,
+     REAL = 275,
+     CARACTERE = 276,
+     VAR = 277
    };
 #endif
 
@@ -70,7 +79,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 74 "sintatico.tab.h"
+#line 83 "sintatico.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
