@@ -34,7 +34,7 @@ map<string, Variavel> variaveis;
 	char var[16];
 }
 
-%token MAIN ENDMAIN INT FLOAT CHAR PRINT READ NOT AND OR
+%token MAIN ENDMAIN INT FLOAT CHAR PRINT READ NOT AND OR IF ELSE WHILE
 %token EQ NEQ GT LT GTEQ LTEQ
 %token <inteiro> INTEIRO
 %token <real> REAL
@@ -45,6 +45,9 @@ map<string, Variavel> variaveis;
 %type <real> EXPR
 %type <inteiro> LOGICA
 %type <inteiro> EXPR_RELAC
+%type <inteiro> BLOCO
+%type <inteiro> IF_COMANDO
+%type <inteiro> WHILE_COMANDO
 
 %left '+' '-'
 %left '*' '/'
@@ -56,16 +59,16 @@ map<string, Variavel> variaveis;
 
 %%
 
-S:  MAIN BLOCO ENDMAIN
+S:  MAIN BLOCO ENDMAIN 
 	;
 
-BLOCO: '{' COMANDOS '}'
+BLOCO: '{' COMANDOS '}' 
 	;
 
 COMANDOS: COMANDOS COMANDO | COMANDO 
     ;
 
-COMANDO: DECLARACAO | ATRIB | SAIDA | ENTRADA | LOGICA | EXPR_RELAC
+COMANDO: DECLARACAO | ATRIB | SAIDA | ENTRADA | LOGICA | EXPR_RELAC | WHILE_COMANDO | IF_COMANDO
 	;
 
 DECLARACAO: FLOAT VAR '=' EXPR ';'  
@@ -218,7 +221,7 @@ LOGICA: NOT LOGICA 			{ $$ = !$2; }
       | LOGICA AND LOGICA   { $$ = $1 && $3; }
       | LOGICA OR LOGICA    { $$ = $1 || $3;  }
       | '(' LOGICA ')'  	{ $$ = $2; }
-	//   | EXPR_RELAC
+	  | EXPR_RELAC
 	  | VALOR 
       ;
 
@@ -240,13 +243,25 @@ VALOR: 	VAR
 		| REAL 	{$$ = (int)$1; }
 		;
 
-EXPR_RELAC:   VALOR EQ VALOR   { $$ = ($1 == $3) ? 1 : 0; cout << $$ << endl;}
-			| VALOR NEQ VALOR  { $$ = ($1 != $3) ? 1 : 0; cout << $$ << endl;}
-			| VALOR GT VALOR   { $$ = ($1 > $3) ? 1 : 0; cout << $$ << endl;}
-			| VALOR LT VALOR   { $$ = ($1 < $3) ? 1 : 0; cout << $$ << endl;}
-			| VALOR GTEQ VALOR { $$ = ($1 >= $3) ? 1 : 0; cout << $$ << endl;}
-			| VALOR LTEQ VALOR { $$ = ($1 <= $3) ? 1 : 0; cout << $$ << endl;}
+EXPR_RELAC:   VALOR EQ VALOR   { $$ = ($1 == $3) ? 1 : 0; }
+			| VALOR NEQ VALOR  { $$ = ($1 != $3) ? 1 : 0; }
+			| VALOR GT VALOR   { $$ = ($1 > $3) ? 1 : 0; }
+			| VALOR LT VALOR   { $$ = ($1 < $3) ? 1 : 0; }
+			| VALOR GTEQ VALOR { $$ = ($1 >= $3) ? 1 : 0; }
+			| VALOR LTEQ VALOR { $$ = ($1 <= $3) ? 1 : 0; }
 			;
+
+IF_COMANDO: IF '(' LOGICA ')' BLOCO ELSE BLOCO
+		| IF '(' LOGICA ')' BLOCO
+		;
+
+WHILE_COMANDO: WHILE '(' LOGICA ')' BLOCO
+	{
+		while($3){
+			$$ = $5;
+		}
+	}
+	;
 %%
 
 /* definido pelo analisador léxico */

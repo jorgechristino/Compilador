@@ -49,16 +49,19 @@
      NOT = 265,
      AND = 266,
      OR = 267,
-     EQ = 268,
-     NEQ = 269,
-     GT = 270,
-     LT = 271,
-     GTEQ = 272,
-     LTEQ = 273,
-     INTEIRO = 274,
-     REAL = 275,
-     CARACTERE = 276,
-     VAR = 277
+     IF = 268,
+     ELSE = 269,
+     WHILE = 270,
+     EQ = 271,
+     NEQ = 272,
+     GT = 273,
+     LT = 274,
+     GTEQ = 275,
+     LTEQ = 276,
+     INTEIRO = 277,
+     REAL = 278,
+     CARACTERE = 279,
+     VAR = 280
    };
 #endif
 
@@ -79,7 +82,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 83 "sintatico.tab.h"
+#line 86 "sintatico.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

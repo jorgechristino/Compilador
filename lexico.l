@@ -16,7 +16,7 @@ separador       "|"
 underscore      "_"
 inteiro         [-+]?{digito}+ 
 real            [-+]?{digito}+"."{digito}+
-caractere       "|"[{letra}|{digito}|{" "}]"|"
+caractere       {separador}[a-zA-Z0-9/" "]{separador}
 
 var             {letra}({letra}|{digito}|{underscore})*
 
@@ -40,6 +40,9 @@ var             {letra}({letra}|{digito}|{underscore})*
 "<"          { return LT; }
 ">="         { return GTEQ; }
 "<="         { return LTEQ; }
+"if"         { return IF; }
+"else"       { return ELSE; }
+"while"      { return WHILE; }
 {inteiro}    { yylval.inteiro = atoi(yytext); return INTEIRO; }
 {real}       { yylval.real = atof(yytext); return REAL; }
 {caractere}  { yylval.caractere = yytext[1]; return CARACTERE; }
