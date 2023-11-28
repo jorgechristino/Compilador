@@ -14,5 +14,7 @@ Comandos para a geração do compilador da linguagem e execução do programa ex
 flex lexico.l
 bison -d sintatico.y
 g++ lex.yy.c sintatico.tab.c -o compiler
-.\compiler.exe programa
+.\compiler.exe programa.ç
+gcc output.c
+.\a.exe
 ```

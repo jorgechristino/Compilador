@@ -1,53 +1,49 @@
 %{
-/* analisador sintático para uma calculadora */
-/* com suporte a definição de variáveis */
+/* analisador sintático */
 #include <iostream>
 #include <string>
+#include <string.h>
+#include <fstream>
 #include <map>
 
 using namespace std;
+
+enum Tipo { TIPO_INT, TIPO_FLOAT, TIPO_CHAR };
+
+map<string, Tipo> variaveis;
+string codigo = "";
 
 /* protótipos das funções */
 int yylex(void);
 int yyparse(void);
 void yyerror(const char *);
-int verificarDeclaracao(char *var);
-
-enum Tipo { TIPO_INT, TIPO_FLOAT, TIPO_CHAR };
-
-/* tabela de símbolos */
-typedef struct {
-    Tipo tipo;
-	int intValor;
-	double doubleValor;
-	char charValor;
-} Variavel;
-
-map<string, Variavel> variaveis;
 
 %}
 
 %union {
-	int inteiro;
-	double real;
-	char caractere;
-	char var[16];
+	char var[256];
 }
 
 %token MAIN ENDMAIN INT FLOAT CHAR PRINT READ NOT AND OR IF ELSE WHILE
 %token EQ NEQ GT LT GTEQ LTEQ
-%token <inteiro> INTEIRO
-%token <real> REAL
-%token <caractere> CARACTERE
+%token <var> INTEIRO
+%token <var> REAL
+%token <var> CARACTERE
 %token <var> VAR
 
-%type <inteiro> VALOR
-%type <real> EXPR
-%type <inteiro> LOGICA
-%type <inteiro> EXPR_RELAC
-%type <inteiro> BLOCO
-%type <inteiro> IF_COMANDO
-%type <inteiro> WHILE_COMANDO
+%type <var> BLOCO 
+%type <var> COMANDOS 
+%type <var> COMANDO 
+%type <var> EXPR 
+%type <var> DECLARACAO 
+%type <var> ATRIB 
+%type <var> SAIDA 
+%type <var> ENTRADA
+%type <var> LOGICA
+%type <var> VALOR
+%type <var> EXPR_RELAC
+%type <var> IF_COMANDO
+%type <var> WHILE_COMANDO
 
 %left '+' '-'
 %left '*' '/'
@@ -60,207 +56,292 @@ map<string, Variavel> variaveis;
 %%
 
 S:  MAIN BLOCO ENDMAIN 
+	{
+		codigo = "#include<stdio.h>\n";		
+		codigo += "#include<stdlib.h>\n";		
+		codigo += "int main () {\n";
+		codigo += $2;
+		codigo += "\treturn 0;\n";
+		codigo += "}";
+	}
 	;
 
 BLOCO: '{' COMANDOS '}' 
+		{ 
+			strncpy($$, $2, 256);
+		} 
 	;
 
-COMANDOS: COMANDOS COMANDO | COMANDO 
+COMANDOS: 	COMANDOS COMANDO 
+			{
+				strcat($$, $2);
+			}
+			| COMANDO
+			{
+				
+			}
     ;
 
-COMANDO: DECLARACAO | ATRIB | SAIDA | ENTRADA | LOGICA | EXPR_RELAC | WHILE_COMANDO | IF_COMANDO
+COMANDO: DECLARACAO | ATRIB | SAIDA | ENTRADA | IF_COMANDO | WHILE_COMANDO
 	;
 
 DECLARACAO: FLOAT VAR '=' EXPR ';'  
 			{ 
-				if(variaveis.find($2) == variaveis.end()){
-					variaveis[$2].tipo = Tipo::TIPO_FLOAT;
-					variaveis[$2].doubleValor = $4; 
-				}else{
-					yyerror("Variavel ja foi declarada!");
-				}
+				strcpy($$, "\tfloat ");
+				strcat($$, $2);
+				strcat($$, " = ");
+				strcat($$, $4);
+				strcat($$, ";\n");
+				variaveis[$2] = Tipo::TIPO_FLOAT;
 			}
 			| FLOAT VAR ';'  		   
 			{ 
-				if(variaveis.find($2) == variaveis.end()){
-					variaveis[$2].tipo = Tipo::TIPO_FLOAT;
-					variaveis[$2].doubleValor = 0;  
-				}else{
-					yyerror("Variavel ja foi declarada!");
-				}
+				strcpy($$, "\tfloat ");
+				strcat($$, $2);
+				strcat($$, ";\n");
+				variaveis[$2] = Tipo::TIPO_FLOAT;
 			}
 			| INT VAR '=' EXPR ';'  
 			{ 
-				if(variaveis.find($2) == variaveis.end()){
-					variaveis[$2].tipo = Tipo::TIPO_INT;
-					variaveis[$2].intValor = $4; 
-				}else{
-					yyerror("Variavel ja foi declarada!");
-				}
+				strcpy($$, "\tint ");
+				strcat($$, $2);
+				strcat($$, " = ");
+				strcat($$, $4);
+				strcat($$, ";\n");
+				variaveis[$2] = Tipo::TIPO_INT;
 			}
 			| INT VAR ';'  		   
 			{ 
-				if(variaveis.find($2) == variaveis.end()){
-					variaveis[$2].tipo = Tipo::TIPO_INT;
-					variaveis[$2].intValor = 0;  
-				}else{
-					yyerror("Variavel ja foi declarada!");
-				}
+				strcpy($$, "\tint ");
+				strcat($$, $2);
+				strcat($$, ";\n");
+				variaveis[$2] = Tipo::TIPO_INT;
 			}
 			| CHAR VAR '=' CARACTERE ';'  
 			{ 
-				if(variaveis.find($2) == variaveis.end()){
-					variaveis[$2].tipo = Tipo::TIPO_CHAR;
-					variaveis[$2].charValor = $4;  
-				}else{
-					yyerror("Variavel ja foi declarada!");
-				}
+				strcpy($$, "\tchar ");
+				strcat($$, $2);
+				strcat($$, " = ");
+				char caractere[5] = "'";
+				caractere[1] = $4[1];
+				caractere[2] = '\'';
+				strcat($$, caractere);
+				strcat($$, ";\n");
+				variaveis[$2] = Tipo::TIPO_CHAR;
 			}
 			| CHAR VAR ';'  		   
 			{ 
-				if(variaveis.find($2) == variaveis.end()){
-					variaveis[$2].tipo = Tipo::TIPO_CHAR;
-					variaveis[$2].charValor = ' ';  
-				}else{
-					yyerror("Variavel ja foi declarada!");
-				}
+				strcpy($$, "\tchar ");
+				strcat($$, $2);
+				strcat($$, ";\n");
+				variaveis[$2] = Tipo::TIPO_CHAR;
 			}
 		;
+
+
+
+EXPR: EXPR '+' EXPR				
+	{
+		strcpy($$, $1);
+		strcat($$, " + ");
+		strcat($$, $3);
+	}
+	| EXPR '-' EXPR
+	{
+		strcpy($$, $1);
+		strcat($$, " - ");
+		strcat($$, $3);
+	}
+	| EXPR '*' EXPR
+	{
+		strcpy($$, $1);
+		strcat($$, " * ");
+		strcat($$, $3);
+	}
+	| EXPR '/' EXPR
+	{
+		strcpy($$, $1);
+		strcat($$, " / ");
+		strcat($$, $3);
+	}
+	| '(' EXPR ')'
+	{
+		strcpy($$, "(");
+		strcat($$, $2);
+		strcat($$, ")");
+	}
+	| VAR					
+	| REAL	 	
+	| INTEIRO    
+	;
+
 
 ATRIB: VAR '=' EXPR ';'	
 	{
-		if(verificarDeclaracao($1)){
-			if(variaveis[$1].tipo == Tipo::TIPO_INT){
-				variaveis[$1].intValor = $3; 
-			}else if(variaveis[$1].tipo == Tipo::TIPO_FLOAT){
-				variaveis[$1].doubleValor = $3; 
-			}else if(variaveis[$1].tipo == Tipo::TIPO_CHAR){
-				variaveis[$1].charValor = $3; 
-			}
-		}
+		strcpy($$, "\t");
+		strcat($$, $1);
+		strcat($$, " = ");
+		strcat($$, $3);
+		strcat($$, ";\n");
 	} 	
 	| VAR '=' CARACTERE ';' 	
 	{ 
-		if(verificarDeclaracao($1)){
-			if(variaveis[$1].tipo == Tipo::TIPO_INT){
-				variaveis[$1].intValor = $3; 
-			}else if(variaveis[$1].tipo == Tipo::TIPO_FLOAT){
-				variaveis[$1].doubleValor = $3; 
-			}else if(variaveis[$1].tipo == Tipo::TIPO_CHAR){
-				variaveis[$1].charValor = $3; 
-			}
-		}
+		strcpy($$, "\t");
+		strcat($$, $1);
+		strcat($$, " = ");
+		char caractere[5] = "'";
+		caractere[1] = $3[1];
+		caractere[2] = '\'';
+		strcat($$, caractere);
+		strcat($$, ";\n");
 	}
 	; 
 
-EXPR: EXPR '+' EXPR				{ $$ = $1 + $3; }
-	| EXPR '-' EXPR   			{ $$ = $1 - $3; }
-	| EXPR '*' EXPR				{ $$ = $1 * $3; }
-	| EXPR '/' EXPR			
-	{ 
-		if ($3 == 0)
-			yyerror("Divisão por zero");
-		else
-			$$ = $1 / $3; 
-	}
-	| '(' EXPR ')'			{ $$ = $2; }
-	| VAR					
-	{
-		if(verificarDeclaracao($1)){
-			if(variaveis[$1].tipo == Tipo::TIPO_INT){
-				$$ = variaveis[$1].intValor;
-			}else if(variaveis[$1].tipo == Tipo::TIPO_FLOAT){
-				$$ = variaveis[$1].doubleValor;
-			}
-		}
-	}
-	| REAL	 	
-	| INTEIRO    {$$ = (float)$1; }
-	;
-
 SAIDA:  PRINT '(' VAR ')' ';' 
 		{
-			if(verificarDeclaracao($3)){
-				if(variaveis[$3].tipo == Tipo::TIPO_INT){
-					cout << variaveis[$3].intValor; 
-				}
-				else if(variaveis[$3].tipo == Tipo::TIPO_FLOAT){
-					cout << variaveis[$3].doubleValor; 
-				}
-				else if(variaveis[$3].tipo == Tipo::TIPO_CHAR){
-					cout << variaveis[$3].charValor; 
-				}
+			if(variaveis[$3] == Tipo::TIPO_INT){
+				strcpy($$, "\tprintf(\"\%d\",");
+			}else if(variaveis[$3] == Tipo::TIPO_FLOAT){
+				strcpy($$, "\tprintf(\"\%f\",");
+			}else{
+				strcpy($$, "\tprintf(\"\%c\",");
 			}
+				strcat($$, $3);
+				strcat($$, ");\n");
 		}
-		| PRINT '(' INTEIRO ')' ';'  	{ cout << $3; }
-		| PRINT '(' REAL ')' ';'  		{ cout << $3; }
-		| PRINT '(' CARACTERE ')' ';'  	{ cout << $3; }
-
-ENTRADA:  READ '(' VAR ')' ';'
-    {
-        if(verificarDeclaracao($3)){
-            if(variaveis[$3].tipo == Tipo::TIPO_INT){
-                int v;
-                cin >> v;
-                variaveis[$3].intValor = v;
-            }
-            else if(variaveis[$3].tipo == Tipo::TIPO_FLOAT){
-                float v;
-                cin >> v;
-                variaveis[$3].doubleValor = v;
-            }
-            else if(variaveis[$3].tipo == Tipo::TIPO_CHAR){
-                char v;
-                cin >> v;
-                variaveis[$3].charValor = v;
-            }
-        }
-    }
-
-LOGICA: NOT LOGICA 			{ $$ = !$2; }
-      | LOGICA AND LOGICA   { $$ = $1 && $3; }
-      | LOGICA OR LOGICA    { $$ = $1 || $3;  }
-      | '(' LOGICA ')'  	{ $$ = $2; }
-	  | EXPR_RELAC
-	  | VALOR 
-      ;
-
-VALOR: 	VAR
+		| PRINT '(' INTEIRO ')' ';'  	
+		{ 
+			strcpy($$, "\tprintf(\"\%d\",");
+			strcat($$, $3);
+			strcat($$, ");\n"); 
+		}
+		| PRINT '(' REAL ')' ';'
 		{
-			if(verificarDeclaracao($1)){
-				if(variaveis[$1].tipo == Tipo::TIPO_INT){
-					$$ = variaveis[$1].intValor;
-				}
-				else if(variaveis[$1].tipo == Tipo::TIPO_FLOAT){
-					$$ = (int)variaveis[$1].doubleValor; 
-				}
-				else if(variaveis[$1].tipo == Tipo::TIPO_CHAR){
-					$$ = (int)variaveis[$1].charValor; 
-				}
-			}
+			strcpy($$, "\tprintf(\"\%f\",");
+			strcat($$, $3);
+			strcat($$, ");\n");
 		}
-		| INTEIRO
-		| REAL 	{$$ = (int)$1; }
+		| PRINT '(' CARACTERE ')' ';'
+		{
+			strcpy($$, "\tprintf(\"\%c\",");
+			char caractere[5] = "'";
+			caractere[1] = $3[1];
+			caractere[2] = '\'';
+			strcat($$, caractere);
+			strcat($$, ");\n");
+		}
 		;
 
-EXPR_RELAC:   VALOR EQ VALOR   { $$ = ($1 == $3) ? 1 : 0; }
-			| VALOR NEQ VALOR  { $$ = ($1 != $3) ? 1 : 0; }
-			| VALOR GT VALOR   { $$ = ($1 > $3) ? 1 : 0; }
-			| VALOR LT VALOR   { $$ = ($1 < $3) ? 1 : 0; }
-			| VALOR GTEQ VALOR { $$ = ($1 >= $3) ? 1 : 0; }
-			| VALOR LTEQ VALOR { $$ = ($1 <= $3) ? 1 : 0; }
+ENTRADA:  	READ '(' VAR ')' ';'
+			{
+				if(variaveis[$3] == Tipo::TIPO_INT){
+					strcpy($$, "\tscanf(\"\%d\",&");
+				}else if(variaveis[$3] == Tipo::TIPO_FLOAT){
+					strcpy($$, "\tscanf(\"\%f\",&");
+				}else{
+					strcpy($$, "\tscanf(\"\%c\",&");
+				}
+				strcat($$, $3);
+				strcat($$, ");\n");
+			}
+		;
+
+LOGICA: NOT LOGICA 			
+		{ 
+			strcpy($$, "!");
+			strcat($$, $2);
+		}
+      	| LOGICA AND LOGICA   
+	  	{
+			strcpy($$, $1);
+			strcat($$, "&&");
+			strcat($$, $3);
+	  	}
+      	| LOGICA OR LOGICA    
+	  	{ 
+			strcpy($$, $1);
+			strcat($$, "||");
+			strcat($$, $3);
+	  	}
+      	| '(' LOGICA ')'  	
+	  	{
+			strcpy($$, "(");
+			strcat($$, $2);
+			strcat($$, ")");
+	  	}
+	  	| EXPR_RELAC
+	  	| VALOR 
+      	;
+
+VALOR: 	VAR | INTEIRO | REAL 
+		;
+
+EXPR_RELAC: VALOR EQ VALOR   
+			{ 
+				strcpy($$, $1);
+				strcat($$, "==");
+				strcat($$, $3);
+			}
+			| VALOR NEQ VALOR
+			{ 
+				strcpy($$, $1);
+				strcat($$, "!=");
+				strcat($$, $3);
+			}
+			| VALOR GT VALOR
+			{ 
+				strcpy($$, $1);
+				strcat($$, ">");
+				strcat($$, $3);
+			}
+			| VALOR LT VALOR
+			{ 
+				strcpy($$, $1);
+				strcat($$, "<");
+				strcat($$, $3);
+			}
+			| VALOR GTEQ VALOR
+			{ 
+				strcpy($$, $1);
+				strcat($$, ">=");
+				strcat($$, $3);
+			}
+			| VALOR LTEQ VALOR
+			{ 
+				strcpy($$, $1);
+				strcat($$, "<=");
+				strcat($$, $3);
+			}
 			;
 
 IF_COMANDO: IF '(' LOGICA ')' BLOCO ELSE BLOCO
-		| IF '(' LOGICA ')' BLOCO
+			{
+				strcpy($$, "\tif(");
+				strcat($$, $3);
+				strcat($$, "){\n");
+				strcat($$, $5);
+				strcat($$, "}else{\n");
+				strcat($$, $7);
+				strcat($$, "}\n");
+			}
+			| IF '(' LOGICA ')' BLOCO
+			{ 
+				strcpy($$, "\tif(");
+				strcat($$, $3);
+				strcat($$, "){\n");
+				strcat($$, $5);
+				strcat($$, "}\n");
+			}
 		;
 
-WHILE_COMANDO: WHILE '(' LOGICA ')' BLOCO
-	{
-		while($3){
-			$$ = $5;
-		}
-	}
+WHILE_COMANDO:  WHILE '(' LOGICA ')' BLOCO
+				{
+					strcpy($$, "\twhile(");
+					strcat($$, $3);
+					strcat($$, "){\n");
+					strcat($$, $5);
+					strcat($$, "}\n");
+				}
 	;
 %%
 
@@ -285,6 +366,15 @@ int main(int argc, char ** argv)
 	}
 
 	yyparse();
+
+	ofstream output("output.c");
+	if (output.is_open()) {
+        // Inserir codigo no arquivo
+        output << codigo << endl;
+
+        // Fechar o arquivo
+        output.close();
+    }
 }
 
 void yyerror(const char * s)
@@ -296,14 +386,4 @@ void yyerror(const char * s)
 	/* mensagem de erro exibe o símbolo que causou erro e o número da linha */
     cout << "Erro (" << s << "): símbolo \"" << yytext << "\" (linha " << yylineno << ")\n";
 	exit(1);
-}
-
-/* função para verificar se a variável foi declarada */
-int verificarDeclaracao(char * var){
-	if(variaveis.find(var) != variaveis.end()){
-		return 1;
-	}else{
-		yyerror("Variavel nao foi declarada!");
-		return 0;
-	}
 }

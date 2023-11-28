@@ -4,7 +4,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include "sintatico.tab.h"
-extern double variables[26];
 %}
 
 %option yylineno
@@ -43,9 +42,9 @@ var             {letra}({letra}|{digito}|{underscore})*
 "if"         { return IF; }
 "else"       { return ELSE; }
 "while"      { return WHILE; }
-{inteiro}    { yylval.inteiro = atoi(yytext); return INTEIRO; }
-{real}       { yylval.real = atof(yytext); return REAL; }
-{caractere}  { yylval.caractere = yytext[1]; return CARACTERE; }
+{inteiro}    { strcpy(yylval.var, yytext); return INTEIRO; }
+{real}       { strcpy(yylval.var, yytext); return REAL; }
+{caractere}  { strcpy(yylval.var, yytext); return CARACTERE; }
 {var}	     { strcpy(yylval.var, yytext); return VAR; }
 
 .            { return *yytext; }
