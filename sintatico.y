@@ -289,7 +289,7 @@ SAIDA:  PRINT ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR
 				}
 			}
 			strcat($$, str);
-			strcat($$, "\";\n");
+			strcat($$, "\");\n");
 			}
 		;
 
