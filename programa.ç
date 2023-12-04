@@ -1,5 +1,5 @@
 main 
 { 
-   print(|abc|);
+   print(|Insira a quantidade de numeros da sequencia de Fibonacci desejados: |);
 } 
 endmain

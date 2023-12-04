@@ -16,7 +16,7 @@ underscore      "_"
 inteiro         [-+]?{digito}+ 
 real            [-+]?{digito}+"."{digito}+
 caractere       {separador}[a-zA-Z0-9/" "]{separador}
-string          {separador}[a-zA-Z0-9/" "]*{separador}
+string          {separador}[a-zA-Z0-9/" "/":"]*{separador}
 
 var             {letra}({letra}|{digito}|{underscore})*
 

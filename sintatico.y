@@ -12,6 +12,7 @@ enum Tipo { TIPO_INT, TIPO_FLOAT, TIPO_CHAR, TIPO_STRING };
 
 map<string, Tipo> variaveis;
 string codigo = "";
+string reconhecimento = "";
 
 /* protótipos das funções */
 int yylex(void);
@@ -67,6 +68,7 @@ S:  MAIN BLOCO ENDMAIN
 		codigo += $2;
 		codigo += "\treturn 0;\n";
 		codigo += "}";
+		reconhecimento += "MAIN BLOCO ENDMAIN\n";
 	}
 	;
 
