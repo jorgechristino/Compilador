@@ -1,15 +1,8 @@
 main 
 { 
-   int i = 0;
-   if(i == 2){
-      print(2);
-   }else{
-      while(i < 10){
-         char espaco = | |;
-         print(i);
-         print(espaco);
-         i = i + 1;
-      }
-   }
+   string x = |abc|;
+   string a;
+   a = |aaa|;
+   print(x);
 } 
 endmain

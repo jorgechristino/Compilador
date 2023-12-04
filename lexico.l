@@ -16,6 +16,7 @@ underscore      "_"
 inteiro         [-+]?{digito}+ 
 real            [-+]?{digito}+"."{digito}+
 caractere       {separador}[a-zA-Z0-9/" "]{separador}
+string          {separador}[a-zA-Z0-9/" "]*{separador}
 
 var             {letra}({letra}|{digito}|{underscore})*
 
@@ -28,6 +29,7 @@ var             {letra}({letra}|{digito}|{underscore})*
 "int"        { return INT; }
 "float"      { return FLOAT; }
 "char"       { return CHAR; }
+"string"       { return T_STRING; }
 "print"      { return PRINT; }
 "read"       { return READ; }
 "not"        { return NOT; }
@@ -45,6 +47,7 @@ var             {letra}({letra}|{digito}|{underscore})*
 {inteiro}    { strcpy(yylval.var, yytext); return INTEIRO; }
 {real}       { strcpy(yylval.var, yytext); return REAL; }
 {caractere}  { strcpy(yylval.var, yytext); return CARACTERE; }
+{string}     { strcpy(yylval.var, yytext); return STRING; }
 {var}	     { strcpy(yylval.var, yytext); return VAR; }
 
 .            { return *yytext; }

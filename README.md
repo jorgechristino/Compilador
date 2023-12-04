@@ -4,7 +4,7 @@ Implementação de analisadores léxico e sintático para a criação de um comp
 
 ## Instalação
 
-É necessário as ferramentas `flex`, `bison` e `gpp`.
+É necessário as ferramentas `flex`, `bison` , `gpp` e `gcc`.
 
 ## Execução
 

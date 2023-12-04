@@ -8,7 +8,7 @@
 
 using namespace std;
 
-enum Tipo { TIPO_INT, TIPO_FLOAT, TIPO_CHAR };
+enum Tipo { TIPO_INT, TIPO_FLOAT, TIPO_CHAR, TIPO_STRING };
 
 map<string, Tipo> variaveis;
 string codigo = "";
@@ -24,11 +24,12 @@ void yyerror(const char *);
 	char var[256];
 }
 
-%token MAIN ENDMAIN INT FLOAT CHAR PRINT READ NOT AND OR IF ELSE WHILE
+%token MAIN ENDMAIN INT FLOAT CHAR T_STRING PRINT READ NOT AND OR IF ELSE WHILE
 %token EQ NEQ GT LT GTEQ LTEQ
 %token <var> INTEIRO
 %token <var> REAL
 %token <var> CARACTERE
+%token <var> STRING
 %token <var> VAR
 
 %type <var> BLOCO 
@@ -136,6 +137,30 @@ DECLARACAO: FLOAT VAR '=' EXPR ';'
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_CHAR;
 			}
+			| T_STRING VAR '=' STRING ';'  
+			{ 
+				strcpy($$, "\tchar * ");
+				strcat($$, $2);
+				strcat($$, " = \"");
+				char str[strlen($4)];
+				int i_str = 0;
+				for (int i = 0; i < strlen($4); i++) {
+					if ($4[i] != '|' && $4[i] != '\0') {
+						str[i_str] = $4[i];
+						i_str++;
+					}
+				}
+				strcat($$, str);
+				strcat($$, "\";\n");
+				variaveis[$2] = Tipo::TIPO_STRING;
+			}
+			| T_STRING VAR ';'  		   
+			{ 
+				strcpy($$, "\tchar * ");
+				strcat($$, $2);
+				strcat($$, ";\n");
+				variaveis[$2] = Tipo::TIPO_STRING;
+			}
 		;
 
 
@@ -195,6 +220,22 @@ ATRIB: VAR '=' EXPR ';'
 		strcat($$, caractere);
 		strcat($$, ";\n");
 	}
+	| VAR '=' STRING ';' 	
+	{ 
+		strcpy($$, "\t");
+		strcat($$, $1);
+		strcat($$, " = \"");
+		char str[strlen($3)];
+		int i_str = 0;
+		for (int i = 0; i < strlen($3); i++) {
+			if ($3[i] != '|' && $3[i] != '\0') {
+				str[i_str] = $3[i];
+				i_str++;
+			}
+		}
+		strcat($$, str);
+		strcat($$, "\";\n");
+	}
 	; 
 
 SAIDA:  PRINT '(' VAR ')' ';' 
@@ -203,8 +244,10 @@ SAIDA:  PRINT '(' VAR ')' ';'
 				strcpy($$, "\tprintf(\"\%d\",");
 			}else if(variaveis[$3] == Tipo::TIPO_FLOAT){
 				strcpy($$, "\tprintf(\"\%f\",");
-			}else{
+			}else if(variaveis[$3] == Tipo::TIPO_CHAR){
 				strcpy($$, "\tprintf(\"\%c\",");
+			}else{
+				strcpy($$, "\tprintf(\"\%s\",");
 			}
 				strcat($$, $3);
 				strcat($$, ");\n");
@@ -230,6 +273,21 @@ SAIDA:  PRINT '(' VAR ')' ';'
 			strcat($$, caractere);
 			strcat($$, ");\n");
 		}
+		| PRINT '(' STRING ')' ';'
+		{
+			strcpy($$, "\tprintf(\"\%s\",");
+			strcat($$, "\"");
+			char str[strlen($3)];
+			int i_str = 0;
+			for (int i = 0; i < strlen($3); i++) {
+				if ($3[i] != '|' && $3[i] != '\0') {
+					str[i_str] = $3[i];
+					i_str++;
+				}
+			}
+			strcat($$, str);
+			strcat($$, "\";\n");
+			}
 		;
 
 ENTRADA:  	READ '(' VAR ')' ';'
