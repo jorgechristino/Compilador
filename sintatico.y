@@ -25,6 +25,8 @@ void yyerror(const char *);
 }
 
 %token MAIN ENDMAIN INT FLOAT CHAR T_STRING PRINT READ NOT AND OR IF ELSE WHILE
+%token ATRIBUICAO, SOMA, SUB, MULT, DIV, MOD, DELIMITADOR 
+%token ABRE_PARENTESES, FECHA_PARENTESES, ABRE_CHAVES, FECHA_CHAVES
 %token EQ NEQ GT LT GTEQ LTEQ
 %token <var> INTEIRO
 %token <var> REAL
@@ -67,7 +69,7 @@ S:  MAIN BLOCO ENDMAIN
 	}
 	;
 
-BLOCO: '{' COMANDOS '}' 
+BLOCO: ABRE_CHAVES COMANDOS FECHA_CHAVES
 		{ 
 			strncpy($$, $2, 256);
 		} 
@@ -86,7 +88,7 @@ COMANDOS: 	COMANDOS COMANDO
 COMANDO: DECLARACAO | ATRIB | SAIDA | ENTRADA | IF_COMANDO | WHILE_COMANDO
 	;
 
-DECLARACAO: FLOAT VAR '=' EXPR ';'  
+DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR 
 			{ 
 				strcpy($$, "\tfloat ");
 				strcat($$, $2);
@@ -95,14 +97,14 @@ DECLARACAO: FLOAT VAR '=' EXPR ';'
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_FLOAT;
 			}
-			| FLOAT VAR ';'  		   
+			| FLOAT VAR DELIMITADOR		   
 			{ 
 				strcpy($$, "\tfloat ");
 				strcat($$, $2);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_FLOAT;
 			}
-			| INT VAR '=' EXPR ';'  
+			| INT VAR ATRIBUICAO EXPR DELIMITADOR  
 			{ 
 				strcpy($$, "\tint ");
 				strcat($$, $2);
@@ -111,14 +113,14 @@ DECLARACAO: FLOAT VAR '=' EXPR ';'
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_INT;
 			}
-			| INT VAR ';'  		   
+			| INT VAR DELIMITADOR  		   
 			{ 
 				strcpy($$, "\tint ");
 				strcat($$, $2);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_INT;
 			}
-			| CHAR VAR '=' CARACTERE ';'  
+			| CHAR VAR ATRIBUICAO CARACTERE DELIMITADOR 
 			{ 
 				strcpy($$, "\tchar ");
 				strcat($$, $2);
@@ -130,14 +132,14 @@ DECLARACAO: FLOAT VAR '=' EXPR ';'
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_CHAR;
 			}
-			| CHAR VAR ';'  		   
+			| CHAR VAR DELIMITADOR 		   
 			{ 
 				strcpy($$, "\tchar ");
 				strcat($$, $2);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_CHAR;
 			}
-			| T_STRING VAR '=' STRING ';'  
+			| T_STRING VAR ATRIBUICAO STRING DELIMITADOR
 			{ 
 				strcpy($$, "\tchar * ");
 				strcat($$, $2);
@@ -154,7 +156,7 @@ DECLARACAO: FLOAT VAR '=' EXPR ';'
 				strcat($$, "\";\n");
 				variaveis[$2] = Tipo::TIPO_STRING;
 			}
-			| T_STRING VAR ';'  		   
+			| T_STRING VAR DELIMITADOR  		   
 			{ 
 				strcpy($$, "\tchar * ");
 				strcat($$, $2);
@@ -165,31 +167,31 @@ DECLARACAO: FLOAT VAR '=' EXPR ';'
 
 
 
-EXPR: EXPR '+' EXPR				
+EXPR: EXPR SOMA EXPR				
 	{
 		strcpy($$, $1);
 		strcat($$, " + ");
 		strcat($$, $3);
 	}
-	| EXPR '-' EXPR
+	| EXPR SUB EXPR
 	{
 		strcpy($$, $1);
 		strcat($$, " - ");
 		strcat($$, $3);
 	}
-	| EXPR '*' EXPR
+	| EXPR MULT EXPR
 	{
 		strcpy($$, $1);
 		strcat($$, " * ");
 		strcat($$, $3);
 	}
-	| EXPR '/' EXPR
+	| EXPR DIV EXPR
 	{
 		strcpy($$, $1);
 		strcat($$, " / ");
 		strcat($$, $3);
 	}
-	| '(' EXPR ')'
+	| ABRE_PARENTESES EXPR FECHA_PARENTESES
 	{
 		strcpy($$, "(");
 		strcat($$, $2);
@@ -201,7 +203,7 @@ EXPR: EXPR '+' EXPR
 	;
 
 
-ATRIB: VAR '=' EXPR ';'	
+ATRIB: VAR ATRIBUICAO EXPR DELIMITADOR	
 	{
 		strcpy($$, "\t");
 		strcat($$, $1);
@@ -209,7 +211,7 @@ ATRIB: VAR '=' EXPR ';'
 		strcat($$, $3);
 		strcat($$, ";\n");
 	} 	
-	| VAR '=' CARACTERE ';' 	
+	| VAR ATRIBUICAO CARACTERE DELIMITADOR 	
 	{ 
 		strcpy($$, "\t");
 		strcat($$, $1);
@@ -220,7 +222,7 @@ ATRIB: VAR '=' EXPR ';'
 		strcat($$, caractere);
 		strcat($$, ";\n");
 	}
-	| VAR '=' STRING ';' 	
+	| VAR ATRIBUICAO STRING DELIMITADOR 	
 	{ 
 		strcpy($$, "\t");
 		strcat($$, $1);
@@ -238,7 +240,7 @@ ATRIB: VAR '=' EXPR ';'
 	}
 	; 
 
-SAIDA:  PRINT '(' VAR ')' ';' 
+SAIDA:  PRINT ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR 
 		{
 			if(variaveis[$3] == Tipo::TIPO_INT){
 				strcpy($$, "\tprintf(\"\%d\",");
@@ -252,19 +254,19 @@ SAIDA:  PRINT '(' VAR ')' ';'
 				strcat($$, $3);
 				strcat($$, ");\n");
 		}
-		| PRINT '(' INTEIRO ')' ';'  	
+		| PRINT ABRE_PARENTESES INTEIRO FECHA_PARENTESES DELIMITADOR  	
 		{ 
 			strcpy($$, "\tprintf(\"\%d\",");
 			strcat($$, $3);
 			strcat($$, ");\n"); 
 		}
-		| PRINT '(' REAL ')' ';'
+		| PRINT ABRE_PARENTESES REAL FECHA_PARENTESES DELIMITADOR
 		{
 			strcpy($$, "\tprintf(\"\%f\",");
 			strcat($$, $3);
 			strcat($$, ");\n");
 		}
-		| PRINT '(' CARACTERE ')' ';'
+		| PRINT ABRE_PARENTESES CARACTERE FECHA_PARENTESES DELIMITADOR
 		{
 			strcpy($$, "\tprintf(\"\%c\",");
 			char caractere[5] = "'";
@@ -273,7 +275,7 @@ SAIDA:  PRINT '(' VAR ')' ';'
 			strcat($$, caractere);
 			strcat($$, ");\n");
 		}
-		| PRINT '(' STRING ')' ';'
+		| PRINT ABRE_PARENTESES STRING FECHA_PARENTESES DELIMITADOR
 		{
 			strcpy($$, "\tprintf(\"\%s\",");
 			strcat($$, "\"");
@@ -290,7 +292,7 @@ SAIDA:  PRINT '(' VAR ')' ';'
 			}
 		;
 
-ENTRADA:  	READ '(' VAR ')' ';'
+ENTRADA:  	READ ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR
 			{
 				if(variaveis[$3] == Tipo::TIPO_INT){
 					strcpy($$, "\tscanf(\"\%d\",&");
@@ -321,7 +323,7 @@ LOGICA: NOT LOGICA
 			strcat($$, "||");
 			strcat($$, $3);
 	  	}
-      	| '(' LOGICA ')'  	
+      	| ABRE_PARENTESES LOGICA FECHA_PARENTESES 	
 	  	{
 			strcpy($$, "(");
 			strcat($$, $2);
@@ -372,7 +374,7 @@ EXPR_RELAC: VALOR EQ VALOR
 			}
 			;
 
-IF_COMANDO: IF '(' LOGICA ')' BLOCO ELSE BLOCO
+IF_COMANDO: IF ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO ELSE BLOCO
 			{
 				strcpy($$, "\tif(");
 				strcat($$, $3);
@@ -382,7 +384,7 @@ IF_COMANDO: IF '(' LOGICA ')' BLOCO ELSE BLOCO
 				strcat($$, $7);
 				strcat($$, "}\n");
 			}
-			| IF '(' LOGICA ')' BLOCO
+			| IF ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO
 			{ 
 				strcpy($$, "\tif(");
 				strcat($$, $3);
@@ -392,7 +394,7 @@ IF_COMANDO: IF '(' LOGICA ')' BLOCO ELSE BLOCO
 			}
 		;
 
-WHILE_COMANDO:  WHILE '(' LOGICA ')' BLOCO
+WHILE_COMANDO:  WHILE ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO
 				{
 					strcpy($$, "\twhile(");
 					strcat($$, $3);
