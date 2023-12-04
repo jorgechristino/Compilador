@@ -44,6 +44,9 @@ var             {letra}({letra}|{digito}|{underscore})*
 "if"         { return IF; }
 "else"       { return ELSE; }
 "while"      { return WHILE; }
+"for"        { return FOR; }
+"until"      { return UNTIL; }
+"do"         { return DO; }
 {inteiro}    { strcpy(yylval.var, yytext); return INTEIRO; }
 {real}       { strcpy(yylval.var, yytext); return REAL; }
 {caractere}  { strcpy(yylval.var, yytext); return CARACTERE; }
