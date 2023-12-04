@@ -24,7 +24,7 @@ void yyerror(const char *);
 	char var[256];
 }
 
-%token MAIN ENDMAIN INT FLOAT CHAR T_STRING PRINT READ NOT AND OR IF ELSE WHILE
+%token MAIN ENDMAIN INT FLOAT CHAR T_STRING PRINT READ NOT AND OR IF ELSE WHILE FOR UNTIL DO
 %token ATRIBUICAO, SOMA, SUB, MULT, DIV, MOD, DELIMITADOR 
 %token ABRE_PARENTESES, FECHA_PARENTESES, ABRE_CHAVES, FECHA_CHAVES
 %token EQ NEQ GT LT GTEQ LTEQ
@@ -47,6 +47,7 @@ void yyerror(const char *);
 %type <var> EXPR_RELAC
 %type <var> IF_COMANDO
 %type <var> WHILE_COMANDO
+%type <var> FOR_COMANDO
 
 %left '+' '-'
 %left '*' '/'
@@ -85,7 +86,7 @@ COMANDOS: 	COMANDOS COMANDO
 			}
     ;
 
-COMANDO: DECLARACAO | ATRIB | SAIDA | ENTRADA | IF_COMANDO | WHILE_COMANDO
+COMANDO: DECLARACAO | ATRIB | SAIDA | ENTRADA | IF_COMANDO | WHILE_COMANDO | FOR_COMANDO
 	;
 
 DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR 
@@ -400,6 +401,22 @@ WHILE_COMANDO:  WHILE ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO
 					strcat($$, $3);
 					strcat($$, "){\n");
 					strcat($$, $5);
+					strcat($$, "}\n");
+				}
+		;
+
+FOR_COMANDO:  FOR '(' VALOR UNTIL LOGICA DO VAR '=' EXPR ')' BLOCO
+				{
+					strcpy($$, "\tfor(");
+					strcat($$, $3);
+					strcat($$, ";");
+					strcat($$, $5);
+					strcat($$, ";");
+					strcat($$, $7);
+					strcat($$, "=");
+					strcat($$, $9);
+					strcat($$, "){\n");
+					strcat($$, $11);
 					strcat($$, "}\n");
 				}
 	;

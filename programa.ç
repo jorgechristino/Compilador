@@ -1,8 +1,8 @@
 main 
 { 
-   string x = |abc|;
-   string a;
-   a = |aaa|;
-   print(x);
+   int a = 10;
+   for(a until a>0 do a=a - 1){
+      print(|a|);
+   }
 } 
 endmain
