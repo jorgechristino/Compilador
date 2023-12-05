@@ -1,0 +1,32 @@
+main 
+{ 
+    print(|Insira um numero:|);
+    float n1 = 0;
+    read(n1);
+    char lixo;
+    read(lixo);
+    print(|Insira uma operacao:|);
+    char op = |a|;
+    read(op);
+    print(|Insira outro numero:|);
+    float n2 = 0;
+    read(n2);
+
+    float resul = 0;
+    if(op == 43){
+        resul = n1 + n2;
+    }
+    if(op == 45){
+        resul = n1 - n2;
+    }
+    if(op == 42){
+        resul = n1 * n2;
+    }
+    if(op == 47){
+        resul = n1 / n2;
+    }
+
+    print(resul);
+
+} 
+endmain
