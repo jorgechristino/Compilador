@@ -1,5 +1,18 @@
 main 
 { 
-   print(|Insira a quantidade de numeros da sequencia de Fibonacci desejados: |);
+    print(|Insira a quantidade de numeros da sequencia de Fibonacci desejados|);
+    int n = 0;
+    read(n);
+    int cur = 1;
+    int pre = 0;
+    int temp = 0;
+    print(|Sequencia |);
+    for(n until n > 0 do n = n - 1){
+        print(cur);
+        temp = cur;
+        cur = cur + pre;
+        pre = temp;
+    }
+    print(|a|);
 } 
 endmain

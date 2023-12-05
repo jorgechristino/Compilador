@@ -22,7 +22,7 @@ void yyerror(const char *);
 %}
 
 %union {
-	char var[256];
+	char var[10000];
 }
 
 %token MAIN ENDMAIN INT FLOAT CHAR T_STRING PRINT READ NOT AND OR IF ELSE WHILE FOR UNTIL DO
@@ -62,7 +62,7 @@ void yyerror(const char *);
 
 S:  MAIN BLOCO ENDMAIN 
 	{
-		codigo = "#include<stdio.h>\n";		
+		codigo += "#include<stdio.h>\n";	
 		codigo += "#include<stdlib.h>\n";		
 		codigo += "int main () {\n";
 		codigo += $2;
@@ -74,7 +74,7 @@ S:  MAIN BLOCO ENDMAIN
 
 BLOCO: ABRE_CHAVES COMANDOS FECHA_CHAVES
 		{ 
-			strncpy($$, $2, 256);
+			strcpy($$, $2);
 		} 
 	;
 
@@ -99,6 +99,7 @@ DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR
 				strcat($$, $4);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_FLOAT;
+				reconhecimento += "FLOAT VAR ATRIBUICAO EXPR DELIMITADOR\n";
 			}
 			| FLOAT VAR DELIMITADOR		   
 			{ 
@@ -106,6 +107,7 @@ DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR
 				strcat($$, $2);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_FLOAT;
+				reconhecimento += "FLOAT VAR DELIMITADOR\n";
 			}
 			| INT VAR ATRIBUICAO EXPR DELIMITADOR  
 			{ 
@@ -115,6 +117,7 @@ DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR
 				strcat($$, $4);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_INT;
+				reconhecimento += "INT VAR ATRIBUICAO EXPR DELIMITADOR\n";
 			}
 			| INT VAR DELIMITADOR  		   
 			{ 
@@ -122,6 +125,7 @@ DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR
 				strcat($$, $2);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_INT;
+				reconhecimento += "INT VAR DELIMITADOR\n";
 			}
 			| CHAR VAR ATRIBUICAO CARACTERE DELIMITADOR 
 			{ 
@@ -134,6 +138,7 @@ DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR
 				strcat($$, caractere);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_CHAR;
+				reconhecimento += "CHAR VAR ATRIBUICAO CARACTERE DELIMITADOR\n";
 			}
 			| CHAR VAR DELIMITADOR 		   
 			{ 
@@ -141,6 +146,7 @@ DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR
 				strcat($$, $2);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_CHAR;
+				reconhecimento += "CHAR VAR DELIMITADOR\n";
 			}
 			| T_STRING VAR ATRIBUICAO STRING DELIMITADOR
 			{ 
@@ -158,6 +164,7 @@ DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR
 				strcat($$, str);
 				strcat($$, "\";\n");
 				variaveis[$2] = Tipo::TIPO_STRING;
+				reconhecimento += "T_STRING VAR ATRIBUICAO STRING DELIMITADOR\n";
 			}
 			| T_STRING VAR DELIMITADOR  		   
 			{ 
@@ -165,6 +172,7 @@ DECLARACAO: FLOAT VAR ATRIBUICAO EXPR DELIMITADOR
 				strcat($$, $2);
 				strcat($$, ";\n");
 				variaveis[$2] = Tipo::TIPO_STRING;
+				reconhecimento += "T_STRING VAR DELIMITADOR\n";
 			}
 		;
 
@@ -175,34 +183,39 @@ EXPR: EXPR SOMA EXPR
 		strcpy($$, $1);
 		strcat($$, " + ");
 		strcat($$, $3);
+		reconhecimento += "EXPR SOMA EXPR";
 	}
 	| EXPR SUB EXPR
 	{
 		strcpy($$, $1);
 		strcat($$, " - ");
 		strcat($$, $3);
+		reconhecimento += "EXPR SUB EXPR";
 	}
 	| EXPR MULT EXPR
 	{
 		strcpy($$, $1);
 		strcat($$, " * ");
 		strcat($$, $3);
+		reconhecimento += "EXPR MULT EXPR";
 	}
 	| EXPR DIV EXPR
 	{
 		strcpy($$, $1);
 		strcat($$, " / ");
 		strcat($$, $3);
+		reconhecimento += "EXPR DIV EXPR";
 	}
 	| ABRE_PARENTESES EXPR FECHA_PARENTESES
 	{
 		strcpy($$, "(");
 		strcat($$, $2);
 		strcat($$, ")");
+		reconhecimento += "ABRE_PARENTESES EXPR FECHA_PARENTESES";
 	}
-	| VAR					
-	| REAL	 	
-	| INTEIRO    
+	| VAR 	    { reconhecimento += "VAR"; }				
+	| REAL	 	{ reconhecimento += "REAL"; }
+	| INTEIRO   { reconhecimento += "INTEIRO"; } 
 	;
 
 
@@ -213,8 +226,9 @@ ATRIB: VAR ATRIBUICAO EXPR DELIMITADOR
 		strcat($$, " = ");
 		strcat($$, $3);
 		strcat($$, ";\n");
+		reconhecimento += "VAR ATRIBUICAO EXPR DELIMITADOR\n";
 	} 	
-	| VAR ATRIBUICAO CARACTERE DELIMITADOR 	
+	| VAR ATRIBUICAO CARACTERE DELIMITADOR
 	{ 
 		strcpy($$, "\t");
 		strcat($$, $1);
@@ -224,6 +238,7 @@ ATRIB: VAR ATRIBUICAO EXPR DELIMITADOR
 		caractere[2] = '\'';
 		strcat($$, caractere);
 		strcat($$, ";\n");
+		reconhecimento += "VAR ATRIBUICAO CARACTERE DELIMITADOR\n";
 	}
 	| VAR ATRIBUICAO STRING DELIMITADOR 	
 	{ 
@@ -240,6 +255,7 @@ ATRIB: VAR ATRIBUICAO EXPR DELIMITADOR
 		}
 		strcat($$, str);
 		strcat($$, "\";\n");
+		reconhecimento += "VAR ATRIBUICAO STRING DELIMITADOR\n";
 	}
 	; 
 
@@ -256,18 +272,21 @@ SAIDA:  PRINT ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR
 			}
 				strcat($$, $3);
 				strcat($$, ");\n");
+			reconhecimento += "PRINT ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR\n";
 		}
 		| PRINT ABRE_PARENTESES INTEIRO FECHA_PARENTESES DELIMITADOR  	
 		{ 
 			strcpy($$, "\tprintf(\"\%d\",");
 			strcat($$, $3);
 			strcat($$, ");\n"); 
+			reconhecimento += "PRINT ABRE_PARENTESES INTEIRO FECHA_PARENTESES DELIMITADOR\n";
 		}
 		| PRINT ABRE_PARENTESES REAL FECHA_PARENTESES DELIMITADOR
 		{
 			strcpy($$, "\tprintf(\"\%f\",");
 			strcat($$, $3);
 			strcat($$, ");\n");
+			reconhecimento += "PRINT ABRE_PARENTESES REAL FECHA_PARENTESES DELIMITADOR\n";
 		}
 		| PRINT ABRE_PARENTESES CARACTERE FECHA_PARENTESES DELIMITADOR
 		{
@@ -277,6 +296,7 @@ SAIDA:  PRINT ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR
 			caractere[2] = '\'';
 			strcat($$, caractere);
 			strcat($$, ");\n");
+			reconhecimento += "PRINT ABRE_PARENTESES CARACTERE FECHA_PARENTESES DELIMITADOR\n";
 		}
 		| PRINT ABRE_PARENTESES STRING FECHA_PARENTESES DELIMITADOR
 		{
@@ -292,6 +312,7 @@ SAIDA:  PRINT ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR
 			}
 			strcat($$, str);
 			strcat($$, "\");\n");
+			reconhecimento += "PRINT ABRE_PARENTESES STRING FECHA_PARENTESES DELIMITADOR\n";
 			}
 		;
 
@@ -306,37 +327,45 @@ ENTRADA:  	READ ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR
 				}
 				strcat($$, $3);
 				strcat($$, ");\n");
+				reconhecimento += "READ ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR\n";
 			}
+			
 		;
 
 LOGICA: NOT LOGICA 			
 		{ 
 			strcpy($$, "!");
 			strcat($$, $2);
+			reconhecimento += "NOT LOGICA";
 		}
       	| LOGICA AND LOGICA   
 	  	{
 			strcpy($$, $1);
 			strcat($$, "&&");
 			strcat($$, $3);
+			reconhecimento += "LOGICA AND LOGICA";
 	  	}
       	| LOGICA OR LOGICA    
 	  	{ 
 			strcpy($$, $1);
 			strcat($$, "||");
 			strcat($$, $3);
+			reconhecimento += "LOGICA OR LOGICA";
 	  	}
       	| ABRE_PARENTESES LOGICA FECHA_PARENTESES 	
 	  	{
 			strcpy($$, "(");
 			strcat($$, $2);
 			strcat($$, ")");
+			reconhecimento += "ABRE_PARENTESES LOGICA FECHA_PARENTESES";
 	  	}
-	  	| EXPR_RELAC
-	  	| VALOR 
+	  	| EXPR_RELAC 	{ reconhecimento += "EXPR_RELA"; }
+	  	| VALOR 		{ reconhecimento += "VALOR"; }
       	;
 
-VALOR: 	VAR | INTEIRO | REAL 
+VALOR: 	VAR      { reconhecimento += "VAR"; }
+	| INTEIRO 	 { reconhecimento += "INTEIRO"; }
+	| REAL 		 { reconhecimento += "REAL"; }
 		;
 
 EXPR_RELAC: VALOR EQ VALOR   
@@ -344,36 +373,42 @@ EXPR_RELAC: VALOR EQ VALOR
 				strcpy($$, $1);
 				strcat($$, "==");
 				strcat($$, $3);
+				reconhecimento += "VALOR EQ VALOR";
 			}
 			| VALOR NEQ VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, "!=");
 				strcat($$, $3);
+				reconhecimento += "VALOR NEQ VALOR";
 			}
 			| VALOR GT VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, ">");
 				strcat($$, $3);
+				reconhecimento += "VALOR GT VALOR";
 			}
 			| VALOR LT VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, "<");
 				strcat($$, $3);
+				reconhecimento += "VALOR LT VALOR";
 			}
 			| VALOR GTEQ VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, ">=");
 				strcat($$, $3);
+				reconhecimento += "VALOR GTEQ VALOR";
 			}
 			| VALOR LTEQ VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, "<=");
 				strcat($$, $3);
+				reconhecimento += "VALOR LTEQ VALOR";
 			}
 			;
 
@@ -386,6 +421,7 @@ IF_COMANDO: IF ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO ELSE BLOCO
 				strcat($$, "}else{\n");
 				strcat($$, $7);
 				strcat($$, "}\n");
+				reconhecimento += "IF ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO ELSE BLOCO\n";
 			}
 			| IF ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO
 			{ 
@@ -394,6 +430,7 @@ IF_COMANDO: IF ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO ELSE BLOCO
 				strcat($$, "){\n");
 				strcat($$, $5);
 				strcat($$, "}\n");
+				reconhecimento += "IF ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO\n";
 			}
 		;
 
@@ -404,6 +441,7 @@ WHILE_COMANDO:  WHILE ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO
 					strcat($$, "){\n");
 					strcat($$, $5);
 					strcat($$, "}\n");
+					reconhecimento += "WHILE ABRE_PARENTESES LOGICA FECHA_PARENTESES BLOCO\n";
 				}
 		;
 
@@ -420,6 +458,7 @@ FOR_COMANDO:  FOR ABRE_PARENTESES VALOR UNTIL LOGICA DO VAR ATRIBUICAO EXPR FECH
 					strcat($$, "){\n");
 					strcat($$, $11);
 					strcat($$, "}\n");
+					reconhecimento += "FOR ABRE_PARENTESES VALOR UNTIL LOGICA DO VAR ATRIBUICAO EXPR FECHA_PARENTESES BLOCO\n";
 				}
 	;
 %%
@@ -454,6 +493,7 @@ int main(int argc, char ** argv)
         // Fechar o arquivo
         output.close();
     }
+	cout << reconhecimento << endl;
 }
 
 void yyerror(const char * s)
