@@ -183,39 +183,34 @@ EXPR: EXPR SOMA EXPR
 		strcpy($$, $1);
 		strcat($$, " + ");
 		strcat($$, $3);
-		reconhecimento += "EXPR SOMA EXPR";
 	}
 	| EXPR SUB EXPR
 	{
 		strcpy($$, $1);
 		strcat($$, " - ");
 		strcat($$, $3);
-		reconhecimento += "EXPR SUB EXPR";
 	}
 	| EXPR MULT EXPR
 	{
 		strcpy($$, $1);
 		strcat($$, " * ");
 		strcat($$, $3);
-		reconhecimento += "EXPR MULT EXPR";
 	}
 	| EXPR DIV EXPR
 	{
 		strcpy($$, $1);
 		strcat($$, " / ");
 		strcat($$, $3);
-		reconhecimento += "EXPR DIV EXPR";
 	}
 	| ABRE_PARENTESES EXPR FECHA_PARENTESES
 	{
 		strcpy($$, "(");
 		strcat($$, $2);
 		strcat($$, ")");
-		reconhecimento += "ABRE_PARENTESES EXPR FECHA_PARENTESES";
 	}
-	| VAR 	    { reconhecimento += "VAR"; }				
-	| REAL	 	{ reconhecimento += "REAL"; }
-	| INTEIRO   { reconhecimento += "INTEIRO"; } 
+	| VAR 	   				
+	| REAL	 	
+	| INTEIRO   
 	;
 
 
@@ -336,36 +331,30 @@ LOGICA: NOT LOGICA
 		{ 
 			strcpy($$, "!");
 			strcat($$, $2);
-			reconhecimento += "NOT LOGICA";
 		}
       	| LOGICA AND LOGICA   
 	  	{
 			strcpy($$, $1);
 			strcat($$, "&&");
 			strcat($$, $3);
-			reconhecimento += "LOGICA AND LOGICA";
 	  	}
       	| LOGICA OR LOGICA    
 	  	{ 
 			strcpy($$, $1);
 			strcat($$, "||");
 			strcat($$, $3);
-			reconhecimento += "LOGICA OR LOGICA";
 	  	}
       	| ABRE_PARENTESES LOGICA FECHA_PARENTESES 	
 	  	{
 			strcpy($$, "(");
 			strcat($$, $2);
 			strcat($$, ")");
-			reconhecimento += "ABRE_PARENTESES LOGICA FECHA_PARENTESES";
 	  	}
-	  	| EXPR_RELAC 	{ reconhecimento += "EXPR_RELA"; }
-	  	| VALOR 		{ reconhecimento += "VALOR"; }
+	  	| EXPR_RELAC 	
+	  	| VALOR 		
       	;
 
-VALOR: 	VAR      { reconhecimento += "VAR"; }
-	| INTEIRO 	 { reconhecimento += "INTEIRO"; }
-	| REAL 		 { reconhecimento += "REAL"; }
+VALOR: 	VAR  | INTEIRO | REAL 		 
 		;
 
 EXPR_RELAC: VALOR EQ VALOR   
@@ -373,42 +362,36 @@ EXPR_RELAC: VALOR EQ VALOR
 				strcpy($$, $1);
 				strcat($$, "==");
 				strcat($$, $3);
-				reconhecimento += "VALOR EQ VALOR";
 			}
 			| VALOR NEQ VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, "!=");
 				strcat($$, $3);
-				reconhecimento += "VALOR NEQ VALOR";
 			}
 			| VALOR GT VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, ">");
 				strcat($$, $3);
-				reconhecimento += "VALOR GT VALOR";
 			}
 			| VALOR LT VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, "<");
 				strcat($$, $3);
-				reconhecimento += "VALOR LT VALOR";
 			}
 			| VALOR GTEQ VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, ">=");
 				strcat($$, $3);
-				reconhecimento += "VALOR GTEQ VALOR";
 			}
 			| VALOR LTEQ VALOR
 			{ 
 				strcpy($$, $1);
 				strcat($$, "<=");
 				strcat($$, $3);
-				reconhecimento += "VALOR LTEQ VALOR";
 			}
 			;
 
@@ -493,7 +476,15 @@ int main(int argc, char ** argv)
         // Fechar o arquivo
         output.close();
     }
-	cout << reconhecimento << endl;
+
+	ofstream rec("reconhecimento.txt");
+	if (rec.is_open()) {
+        // Inserir reconhecimento no arquivo
+        rec << reconhecimento << endl;
+
+        // Fechar o arquivo
+        rec.close();
+    }
 }
 
 void yyerror(const char * s)
