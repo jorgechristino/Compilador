@@ -11,22 +11,22 @@ main
 
     imc = peso / (altura * altura);
 
-    print(|O IMC calculado é:|);
+    print(|O IMC calculado e:|);
     print(imc);
 
     if (imc < 18.5) {
-        prin(|Abaixo do peso\n|);
+        print(| Abaixo do peso|);
     } 
     else {
         if (imc < 25) {
-            print(|Peso normal\n|);
+            print(| Peso normal|);
         }
         else {
             if (imc < 30) {
-                print(|Sobrepeso\n|);
+                print(| Sobrepeso|);
             }
             else {
-                print(|Obesidade\n|);
+                print(| Obesidade|);
             }
         }
     }
