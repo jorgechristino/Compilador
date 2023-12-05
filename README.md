@@ -2,6 +2,12 @@
 
 Implementação de analisadores léxico e sintático para a criação de um compilador para uma linguagem de programação, usando as ferramentas Flex e Bison.
 
+# Integrantes
+
+Felipe Faustino Brito
+Felipe Queiroz Flores Quintão Bachetti
+Jorge Christino dos Santos Ferreira
+
 ## Instalação
 
 É necessário as ferramentas `flex`, `bison` , `gpp` e `gcc`.

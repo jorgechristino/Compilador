@@ -294,13 +294,13 @@ SAIDA:  PRINT ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR
 			reconhecimento += "PRINT ABRE_PARENTESES CARACTERE FECHA_PARENTESES DELIMITADOR\n";
 		}
 		| PRINT ABRE_PARENTESES STRING FECHA_PARENTESES DELIMITADOR
-		{
+		{ 
 			strcpy($$, "\tprintf(\"\%s\",");
 			strcat($$, "\"");
 			char str[strlen($3)];
 			int i_str = 0;
 			for (int i = 0; i < strlen($3); i++) {
-				if ($3[i] != '|' && $3[i] != '\0') {
+				if ($3[i] != '|') {
 					str[i_str] = $3[i];
 					i_str++;
 				}
@@ -317,8 +317,10 @@ ENTRADA:  	READ ABRE_PARENTESES VAR FECHA_PARENTESES DELIMITADOR
 					strcpy($$, "\tscanf(\"\%d\",&");
 				}else if(variaveis[$3] == Tipo::TIPO_FLOAT){
 					strcpy($$, "\tscanf(\"\%f\",&");
-				}else{
+				}else if(variaveis[$3] == Tipo::TIPO_CHAR){
 					strcpy($$, "\tscanf(\"\%c\",&");
+				}else{
+					strcpy($$, "\tscanf(\"\%s\",");
 				}
 				strcat($$, $3);
 				strcat($$, ");\n");
