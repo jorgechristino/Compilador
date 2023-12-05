@@ -1,0 +1,34 @@
+main 
+{ 
+    float altura = 0;
+    float peso = 0;
+    float imc = 0;
+
+    print(|Digite a altura em metros:|);
+    read(altura);
+    print(|Digite o peso em quilogramas:|);
+    read(peso);
+
+    imc = peso / (altura * altura);
+
+    print(|O IMC calculado é:|);
+    print(imc);
+
+    if (imc < 18.5) {
+        prin(|Abaixo do peso\n|);
+    } 
+    else {
+        if (imc < 25) {
+            print(|Peso normal\n|);
+        }
+        else {
+            if (imc < 30) {
+                print(|Sobrepeso\n|);
+            }
+            else {
+                print(|Obesidade\n|);
+            }
+        }
+    }
+} 
+endmain
